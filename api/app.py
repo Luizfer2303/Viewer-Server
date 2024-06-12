@@ -1,10 +1,7 @@
-from flask import Flask, jsonify, request, redirect, url_for, send_from_directory
+from flask import Flask, request, jsonify
 import pandas as pd
-import os
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = './uploads/spreadsheet'
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 def load_data(file):
     encodings = ['utf-8', 'ISO-8859-1', 'windows-1252']
@@ -27,26 +24,20 @@ def load_data(file):
     else:
         raise ValueError("Tipo de arquivo não suportado. Por favor, faça upload de um arquivo CSV ou XLSX.")
 
-@app.route('/')
-def index():
-    return 'server running'
-
-@app.route('/uploads/spreadsheet', methods=['POST'])
-def load_spreadsheet():
-
+@app.route('/upload', methods=['POST'])
+def upload_file():
     if 'file' not in request.files:
-        return 'no file part'    
-    
+        return 'No file part', 400
     file = request.files['file']
-    if file.name == '':
-        return 'no selected files'
-    
-    if file:
-        try:
-            dataFrame, encondin = load_data(file)
-            return jsonify({'head':dataFrame.head()})
-        except ValueError as e:
-            return e
+    if file.filename == '':
+        return 'No selected file', 400
+    try:
+        data, encoding = load_data(file)
+        # Aqui você pode fazer o que precisar com os dados carregados
+        print(data.head())  # Exemplo: imprimir as primeiras linhas
+        return jsonify(message='File uploaded and data processed successfully', encoding=encoding)
+    except ValueError as e:
+        return str(e), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
