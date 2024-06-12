@@ -1,12 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import pandas as pd
-import logging
 
 app = Flask(__name__)
 
-# Configuração do logger
-logging.basicConfig(filename='logs.log', level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+logs = []
+
+def log_message(message):
+    logs.append(message)
 
 def load_data(file):
     encodings = ['utf-8', 'ISO-8859-1', 'windows-1252']
@@ -32,19 +32,24 @@ def load_data(file):
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
-        app.logger.error('No file part')
+        log_message('No file part')
         return 'No file part', 400
     file = request.files['file']
     if file.filename == '':
-        app.logger.error('No selected file')
+        log_message('No selected file')
         return 'No selected file', 400
     try:
         data, encoding = load_data(file)
-        app.logger.info('File uploaded successfully: %s', file.filename)
+        log_message(f'File uploaded successfully: {file.filename}')
         return jsonify(message='File uploaded and data processed successfully', encoding=encoding)
     except ValueError as e:
-        app.logger.error('Error processing file: %s', e)
+        log_message(f'Error processing file: {e}')
         return str(e), 400
+
+@app.route('/logs')
+def show_logs():
+    return render_template('logs.html', logs=logs)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
