@@ -3,7 +3,7 @@ import pandas as pd
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://gvbim-forge-viewer-base-functions-teste.onrender.com"}})
+CORS(app, resources={r"/foo": {"origins": "https://gvbim-forge-viewer-base-functions-teste.onrender.com"}})
 
 logs = []
 
