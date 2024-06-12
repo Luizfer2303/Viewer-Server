@@ -3,7 +3,7 @@ import pandas as pd
 from flask_cors import CORS
 
 app = Flask(__name__)
-cors = CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Permitir CORS para todos os endpoints
 
 logs = []
 
@@ -54,4 +54,3 @@ def show_logs():
 
 if __name__ == '__main__':
     app.run()
-
