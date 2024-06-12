@@ -1,7 +1,12 @@
 from flask import Flask, request, jsonify
 import pandas as pd
+import logging
 
 app = Flask(__name__)
+
+# Configuração do logger
+logging.basicConfig(filename='logs.log', level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 def load_data(file):
     encodings = ['utf-8', 'ISO-8859-1', 'windows-1252']
@@ -24,19 +29,21 @@ def load_data(file):
     else:
         raise ValueError("Tipo de arquivo não suportado. Por favor, faça upload de um arquivo CSV ou XLSX.")
 
-@app.route('/upload', methods=['POST'])
+@app.route('/api/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
+        app.logger.error('No file part')
         return 'No file part', 400
     file = request.files['file']
     if file.filename == '':
+        app.logger.error('No selected file')
         return 'No selected file', 400
     try:
         data, encoding = load_data(file)
-        # Aqui você pode fazer o que precisar com os dados carregados
-        print(data.head())  # Exemplo: imprimir as primeiras linhas
+        app.logger.info('File uploaded successfully: %s', file.filename)
         return jsonify(message='File uploaded and data processed successfully', encoding=encoding)
     except ValueError as e:
+        app.logger.error('Error processing file: %s', e)
         return str(e), 400
 
 if __name__ == '__main__':
