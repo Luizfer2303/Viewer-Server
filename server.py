@@ -51,5 +51,5 @@ def show_logs():
     return render_template('logs.html', logs=logs)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
 
